@@ -1,0 +1,4 @@
+service-requests.db
+*.db
+*.db-shm
+*.db-wal

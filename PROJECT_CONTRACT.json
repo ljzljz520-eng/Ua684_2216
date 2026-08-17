@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "metrics": {
+    "production_loc": 2417,
+    "production_files": 23,
+    "production_packages": 10,
+    "test_files": 12,
+    "production_functions": 165,
+    "decision_points": 373
+  },
+  "persistence": {
+    "module": "go.etcd.io/bbolt",
+    "entities": [
+      "ServiceRequest",
+      "AgentGroup",
+      "UserAccount",
+      "AuditEvent",
+      "DispatchAttempt"
+    ],
+    "reopen_test": "TestPersistenceSurvivesReopen"
+  },
+  "workflows": [
+    {
+      "steps": [
+        "register an enabled support agent",
+        "create an active agent group",
+        "save and queue a service request",
+        "consume the queue and assign the request",
+        "resolve the assigned request"
+      ],
+      "test": "TestWorkflowCreateQueueDispatchResolve"
+    },
+    {
+      "steps": [
+        "save service requests for an active group",
+        "consume queued requests into assignments",
+        "filter by status group and tag",
+        "export the filtered requests as CSV"
+      ],
+      "test": "TestWorkflowFilterAndExport"
+    },
+    {
+      "steps": [
+        "save a valid service request",
+        "dispatch it to an enabled agent",
+        "reject the assigned request",
+        "read the persisted audit trail"
+      ],
+      "test": "TestWorkflowRejectCreatesAudit"
+    }
+  ]
+}
