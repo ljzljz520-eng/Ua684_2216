@@ -97,7 +97,8 @@ func (s *Service) CreateAndDispatch(ctx context.Context, request model.ServiceRe
 		return request, err
 	}
 	if err := s.validateDispatchTarget(request.GroupID); err != nil {
-		return request, nil
+		_ = s.store.DeleteRequest(request.ID)
+		return request, err
 	}
 	job := queue.Job{RequestID: request.ID, GroupID: request.GroupID, Done: make(chan queue.Result, 1)}
 	if err := s.queue.Enqueue(ctx, job); err != nil {
