@@ -97,7 +97,11 @@ func (s *Service) CreateAndDispatch(ctx context.Context, request model.ServiceRe
 		return request, err
 	}
 	if err := s.validateDispatchTarget(request.GroupID); err != nil {
-		return request, nil
+		// Step 1 already persisted the request; step 2 (business validation)
+		// rejected it. Roll back the half-finished record and surface the
+		// recognizable business failure so callers can act on the cause.
+		_ = s.store.DeleteRequest(request.ID)
+		return request, err
 	}
 	job := queue.Job{RequestID: request.ID, GroupID: request.GroupID, Done: make(chan queue.Result, 1)}
 	if err := s.queue.Enqueue(ctx, job); err != nil {
